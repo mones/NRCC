@@ -1,0 +1,56 @@
+Building
+--------
+
+The challenge implementation was developed in Windows 10 OS with:
+
+- Java JDK v11.0.9.101
+- Eclipse v4.18 and Buildship plugin v3.1.4
+- Gradle v7.1
+
+Other IDEs and versions may work but have been not tested so far.
+
+Once the code is unpacked you can import the project in Eclipse as a Gradle
+project, refresh Gradle project (right-click on project, Gradle option), and
+finally open the Gradle Tasks view and launch the jar task under build group.
+
+If everything goes well a file named "nrcc-1.0.jar" will be built into
+project's build/libs/ directory. This jar requires the Apache Commons CLI
+jar v1.4 in the classpath. 
+
+Building a runnable jar that doesn't require additional classpath is possible
+from the command line, change into project top directory and type:
+
+> gradle serverJar
+
+Upon success a file name "nrcc-1.0-all.jar" will be built into project's
+build/libs/ directory.
+
+It's also possible to build a runnable test client with:
+
+> gradle clientJar
+
+This will create a "nrcc-1.0-client.jar" in the same directory.
+
+Running
+-------
+
+A JVM v1.8 or greater is needed to run the application. For the server the
+following command can be used: 
+
+> path/to/java -jar path/to/nrcc-1.0-all.jar [options]
+
+Of course you don't need to specify the path to java if the JVM bin directory
+is already included on your PATH, neither the path to the jar file if you are
+already in the build/libs/ directory.
+
+You can specify an option (-d) which is the directory where the numbers
+log will be written upon termination. If this parameter is not given the
+current directory will be used to write the log. Try -h option for details.
+
+The client can run the same way, just using the client jar:
+
+> path/to/java -jar path/to/nrcc-1.0-client.jar [options]
+
+Unless a different server is specified with -s option, client will connect to
+the local host by default. Try -h option for details on all command line
+arguments of the client.

@@ -1,0 +1,72 @@
+Performance considerations
+--------------------------
+
+The notes in the challenge document mention that robust implementations
+handle more than 2 million numbers per 10-second in some specific machine
+acting as server, but nothing is said about the clients or the kind of
+network connecting them.
+
+Note also that the time required for handling a new number is radically
+different from the time required for handling a known number, so I'll
+assume that test is composed by a mix of unique and non-unique numbers.
+
+Of course I don't have such machine for testing, but for server it was
+used a AMD Ryzen 5 PRO 3500U @2.1 GHz and 5 clients were launched in an
+AMD A10-7860K @3.6 GHz, both systems with 16 GB RAM. Server was running
+Windows 10 and client was running Debian GNU/Linux 11, both java 11 [1].
+Network is a home wifi, server with 802.11ac and clients just 802.11g.
+
+In this test each client [2] is sending numbers to the server sequentially
+from 0 to the client number * 1000000: first client sends 0 to 1000000,
+second sends 0 to 2000000 and so on. Each client sends 6 million numbers
+(the count is restarted when the upper limit is reached). This is designed
+to generate a lot of new numbers and duplicates in the first million and
+decreasing new in the next millions while duplicates rise. These are the
+reports for a typical execution of the test:
+
+ Received 45094 unique numbers, 156880 duplicates. Unique total: 45094
+ Received 851893 unique numbers, 3121044 duplicates. Unique total: 896987
+ Received 914766 unique numbers, 3673848 duplicates. Unique total: 1811753
+ Received 1038790 unique numbers, 4136180 duplicates. Unique total: 2850543
+ Received 1039666 unique numbers, 4125522 duplicates. Unique total: 3890209
+ Received 999516 unique numbers, 3918786 duplicates. Unique total: 4889725
+ Received 110275 unique numbers, 4737368 duplicates. Unique total: 5000000
+ Received 0 unique numbers, 1130372 duplicates. Unique total: 5000000
+ Received 0 unique numbers, 0 duplicates. Unique total: 5000000
+
+These numbers suggest that the application is capable of handling around four
+duplicates for each unique number:
+
+  Uniq.   Dupl.   D/U     U+(D/4)  
+ ------- ------- ------- --------
+   45094  156880 3.47896    84314
+  851893 3121044 3.66366  1632154
+  914766 3673848 4.01616  1833228
+ 1038790 4136180 3.98173  2072835
+ 1039666 4125522 3.96812  2071047
+  999516 3918786 3.92068  1979213
+  110275 4737368 42.9596  1294617
+
+So, taking this int account, we can argue the peak performance in this
+test environment is around ~2M numbers as suggested. Though not much larger
+probably because of the lower specs of the involved systems.
+
+Notes
+-----
+
+[1] Exact versions of java are, for Windows server:
+
+> java -version
+openjdk version "11.0.9.1" 2020-11-04
+OpenJDK Runtime Environment AdoptOpenJDK (build 11.0.9.1+1)
+OpenJDK 64-Bit Server VM AdoptOpenJDK (build 11.0.9.1+1, mixed mode)
+
+And for Linux clients:
+
+$ java -version
+openjdk version "11.0.11" 2021-04-20
+OpenJDK Runtime Environment (build 11.0.11+9-post-Debian-1)
+OpenJDK 64-Bit Server VM (build 11.0.11+9-post-Debian-1, mixed mode, sharing)
+
+[2] The script nrccLoadTest.sh available in scripts directory is the one
+used for this test.

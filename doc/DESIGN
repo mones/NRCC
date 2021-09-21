@@ -1,0 +1,44 @@
+Application design
+------------------
+
+····<Server>······················································
+
++-------------+
+| Application | <------------------------------------------------+
++-------------+                  (up to 5 threads)               |
+  |       | accept()             +--------------+                |
+  |       +--------------------> | NumberReader |+               |
+  |                              +--------------+|+              |
+  |                               +--------------+|+             |
+  |                                +--------------+|+            |
+  | (one periodic thread)           +--------------+|            |
+  v                                  +--------------+            |
++------------+                           |  ^  |                 |
+| DataKeeper |  <------------------------+  |  +-----------------+
++------------+          receive(number)     |    terminate()
+  |                                         |
+  v                                         |
+[numbers.log]                               |
+                                            |
+····<Client>······························· | ····················
+                                            |
++--------+                      +---------------+
+| Client | -------------------> | NumberWritter |
++--------+                      +---------------+
+
+The Application is the main object and a singleton. It schedules the
+DataKeeper, which is another singleton with the role of maintaining
+the received data and also printing the periodic report. The DataKeeper
+also takes care of saving the numbers log file if too many new unique
+numbers are detected, so data loss on server crash is minimised. Current
+values are 100 new numbers between reports or 100 new numbers since last
+save.
+
+After that it waits for incoming connections on the defined port. Each
+connection is served by a new NumberRead thread until they are finished
+or a termination message is received.
+
+NumberRead thread notify the Application object when they're done, so
+a new NumberRead can be created, or when a termination message is read
+from the client. In the latter case all NumberRead are terminated and
+the final numbers log is written to disk.

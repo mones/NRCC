@@ -1,0 +1,73 @@
+plugins {
+	id 'java-library'
+	id 'eclipse'
+}
+
+version = '1.0'
+def title = 'Application for the NR Code Challenge'
+def mainServerClass = 'org.mones.nrcc.Application'
+def mainClientClass = 'org.mones.nrcc.client.Client'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+}
+
+tasks.named('jar') {
+	manifest {
+		attributes \
+			'Main-Class': mainServerClass,
+			'Implementation-Title': title,
+			'Implementation-Version': version
+	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform() 
+}
+
+dependencies {
+	implementation 'commons-cli:commons-cli:1.4'
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+	testImplementation 'org.junit.platform:junit-platform-runner:1.7.0'
+}
+
+tasks.register('serverJar', Jar) {
+	archiveBaseName = 'nrcc'
+	archiveClassifier = 'all'
+
+	manifest {
+		attributes \
+			'Main-Class': mainServerClass,
+			'Implementation-Title': title,
+			'Implementation-Version': version
+	}
+
+	from sourceSets.main.output
+
+	dependsOn configurations.runtimeClasspath
+	from {
+		configurations.runtimeClasspath.findAll{ it.name.endsWith('jar') }.collect{ zipTree(it) }
+	}
+}
+
+tasks.register('clientJar', Jar) {
+	archiveBaseName = 'nrcc'
+	archiveClassifier = 'client'
+
+	manifest {
+		attributes \
+			'Main-Class': mainClientClass,
+			'Implementation-Title': title,
+			'Implementation-Version': version
+	}
+
+	from sourceSets.main.output
+
+	dependsOn configurations.runtimeClasspath
+	from {
+		configurations.runtimeClasspath.findAll{ it.name.endsWith('jar') }.collect{ zipTree(it) }
+	}
+}

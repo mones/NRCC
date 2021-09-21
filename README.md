@@ -1,0 +1,3 @@
+# NRCC
+
+See doc/README ;-)

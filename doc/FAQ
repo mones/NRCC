@@ -1,0 +1,17 @@
+Frequently Asked Questions
+--------------------------
+
+1. LinkageError/UnsupportedClassVersionError exception on run
+
+Your JVM is too old to run the application, see "Running" section on README.
+
+2. Can't connect from other machines, only localhost works
+
+Program uses port 4000 for client connections. On some systems (e.g.: Windows)
+this port can be blocked for non-localhost connections, and you may need to add
+the java binary to the applications allowed to bypass firewall rules.
+
+3. Typing numbers in telnet is too boring
+
+If you have bash and awk you can use the nrccClient.sh file available in
+the scripts directory to send random numbers to the server.
